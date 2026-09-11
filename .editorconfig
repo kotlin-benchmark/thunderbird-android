@@ -27,3 +27,11 @@ trim_trailing_whitespace = false
 
 [*.sh]
 indent_size = 2
+
+# Planted benchmark files: markers (//SOURCE //SINK //CWE-xxx) must stay verbatim
+# and must never be reformatted or moved. Freeze ktlint on these files.
+[app-common/src/main/kotlin/net/thunderbird/app/common/{MainActivity,ContentUriImportHandler,ReflectiveActionHandler,GrantResultHandler,IntentRedirectHandler,TokenCipher}.kt]
+ktlint_standard = disabled
+
+[feature/notification/impl/src/androidMain/kotlin/net/thunderbird/feature/notification/impl/receiver/AndroidSystemNotificationNotifier.kt]
+ktlint_standard = disabled

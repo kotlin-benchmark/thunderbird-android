@@ -1,6 +1,9 @@
 package net.thunderbird.feature.notification.impl.receiver
 
+import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -33,6 +36,7 @@ internal class AndroidSystemNotificationNotifier(
         val id = notificationRegistry.register(notification)
         val androidNotification = notification.toAndroidNotification()
         notificationManager.notify(id.value, androidNotification)
+        postActionNotification()
         return id
     }
 
@@ -123,5 +127,37 @@ internal class AndroidSystemNotificationNotifier(
 
             SystemNotificationStyle.Undefined -> Unit
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun postActionNotification() {
+        //CWE-927
+        //SOURCE
+        val baseIntent = Intent(ACTION_RETRY)
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                applicationContext,
+                0,
+                baseIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
+            )
+        val androidNotification =
+            NotificationCompat
+                .Builder(applicationContext, ACTION_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setContentTitle(ACTION_TITLE)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
+        //CWE-927
+        //SINK
+        notificationManager.notify(ACTION_NOTIFICATION_ID, androidNotification)
+    }
+
+    private companion object {
+        const val ACTION_RETRY = "net.thunderbird.action.RETRY"
+        const val ACTION_CHANNEL_ID = "misc"
+        const val ACTION_TITLE = "Retry"
+        const val ACTION_NOTIFICATION_ID = 90001
     }
 }

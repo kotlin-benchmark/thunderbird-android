@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.util.AttributeSet
+import android.webkit.WebSettings
 import android.webkit.WebView
 import com.fsck.k9.core.BuildConfig
 import com.fsck.k9.mailstore.AttachmentResolver
@@ -52,7 +53,10 @@ class MessageWebView : WebView, KoinComponent {
 
             disableDisplayZoomControls()
 
-            javaScriptEnabled = false
+            javaScriptEnabled = true
+            //CWE-829
+            //SINK
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW)
             loadsImagesAutomatically = true
 
             overScrollMode = OVER_SCROLL_NEVER
@@ -63,6 +67,10 @@ class MessageWebView : WebView, KoinComponent {
             val fontScale = Resources.getSystem().configuration.fontScale
             settings.textZoom = (settings.textZoom * fontScale).roundToInt()
         }
+
+        //CWE-749
+        //SINK
+        addJavascriptInterface(MessageJsBridge(context), "Android")
 
         // Disable network images by default. This is overridden by preferences.
         blockNetworkData(true)
